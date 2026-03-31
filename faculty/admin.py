@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Department, Teacher, Subject, Holiday, Event, TimeTable
+from .models import Department, Teacher, Subject, Holiday, Event, TimeTable, Exam, ExamResult
 
 
 @admin.register(Holiday)
@@ -11,7 +11,7 @@ class HolidayAdmin(admin.ModelAdmin):
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    list_display = ('name', 'head_of_department', 'description')
     search_fields = ('name',)
 
 
@@ -41,3 +41,17 @@ class TimeTableAdmin(admin.ModelAdmin):
     list_display = ('subject', 'teacher', 'day', 'start_time', 'end_time', 'room')
     list_filter = ('day', 'subject__department')
     search_fields = ('subject__name', 'teacher__user__first_name', 'teacher__user__last_name', 'room')
+
+
+@admin.register(Exam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'date', 'duration', 'room')
+    list_filter = ('date', 'subject__department')
+    search_fields = ('subject__name', 'room')
+
+
+@admin.register(ExamResult)
+class ExamResultAdmin(admin.ModelAdmin):
+    list_display = ('exam', 'student', 'score')
+    list_filter = ('exam__subject',)
+    search_fields = ('student__first_name', 'student__last_name')
