@@ -91,6 +91,43 @@
       </div>
     </div>
 
+    <!-- Upcoming Exams -->
+    {% if upcoming_exams %}
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-header">
+            <h5 class="mb-0">Upcoming Exams</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-center mb-0">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Duration (min)</th>
+                    <th>Room</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for exam in upcoming_exams %}
+                  <tr>
+                    <td>{{ exam.subject.name }}</td>
+                    <td>{{ exam.date }}</td>
+                    <td>{{ exam.duration }}</td>
+                    <td>{{ exam.room|default:"—" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
   </div>
 </div>
 {% endblock %}

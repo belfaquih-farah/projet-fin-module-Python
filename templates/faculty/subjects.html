@@ -1,0 +1,101 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Subjects</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Subjects</li>
+          </ul>
+        </div>
+        <div class="col-auto text-right float-right ml-auto">
+          <a href="{% url 'add_subject' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Subject
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Department filter -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <form method="get">
+          <select name="department" class="form-control" onchange="this.form.submit()">
+            <option value="">All Departments</option>
+            {% for dept in departments %}
+            <option value="{{ dept.pk }}" {% if selected_department == dept.pk|stringformat:"s" %}selected{% endif %}>
+              {{ dept.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-center mb-0 datatable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Teacher</th>
+                    <th>Description</th>
+                    <th class="text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for subject in subject_list %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ subject.name }}</td>
+                    <td>{{ subject.department }}</td>
+                    <td>
+                      {% if subject.teacher %}
+                        {{ subject.teacher.user.first_name }} {{ subject.teacher.user.last_name }}
+                      {% else %}—{% endif %}
+                    </td>
+                    <td>{{ subject.description|default:"—"|truncatechars:60 }}</td>
+                    <td class="text-right">
+                      <a href="{% url 'edit_subject' subject.pk %}" class="btn btn-sm btn-warning mr-1">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      <a href="{% url 'delete_subject' subject.pk %}"
+                         class="btn btn-sm btn-danger"
+                         onclick="return confirm('Delete this subject?')">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr><td colspan="6" class="text-center">No subjects found.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
