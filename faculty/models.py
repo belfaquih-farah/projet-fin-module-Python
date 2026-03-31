@@ -7,6 +7,9 @@ class Holiday(models.Model):
     date = models.DateField()
     description = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ['date']
+
     def __str__(self):
         return f"{self.name} ({self.date})"
 
@@ -14,7 +17,7 @@ class Holiday(models.Model):
 class Department(models.Model):
     name = models.CharField(max_length=100)
     head_of_department = models.ForeignKey(
-        'Teacher',  # Utilisation d'une chaîne car Teacher est défini plus bas
+        'Teacher',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -74,6 +77,43 @@ class Subject(models.Model):
         return self.name
 
 
+class Event(models.Model):
+    title = models.CharField(max_length=150)
+    date = models.DateField()
+    location = models.CharField(max_length=150, blank=True)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return f"{self.title} ({self.date})"
+
+
+class TimeTable(models.Model):
+    DAY_CHOICES = [
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+    ]
+
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='timetable_entries')
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='timetable_entries')
+    day = models.CharField(max_length=10, choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room = models.CharField(max_length=50, blank=True)
+
+    class Meta:
+        ordering = ['day', 'start_time']
+
+    def __str__(self):
+        return f"{self.subject} — {self.day} {self.start_time:%H:%M}-{self.end_time:%H:%M}"
+
+
 class Exam(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams')
     date = models.DateField()
@@ -87,8 +127,8 @@ class Exam(models.Model):
 class ExamResult(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='results')
     student = models.ForeignKey(
-        'student.Student', 
-        on_delete=models.CASCADE, 
+        'student.Student',
+        on_delete=models.CASCADE,
         related_name='exam_results'
     )
     score = models.DecimalField(max_digits=5, decimal_places=2)

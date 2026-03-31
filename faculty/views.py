@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from .models import Holiday, Teacher, Department, Subject, Exam, ExamResult
+import calendar
+from datetime import date
+
+from .models import Teacher, Department, Subject, Holiday, Event, TimeTable, Exam, ExamResult
+from home_auth.decorators import admin_required, teacher_required
 from student.models import Student
 
 User = get_user_model()
@@ -12,70 +15,41 @@ def index(request):
     return render(request, 'authentication/login.html')
 
 
-@login_required
+@admin_required
 def dashboard(request):
     total_students = Student.objects.count()
     return render(request, 'students/student-dashboard.html', {'total_students': total_students})
 
 
-@login_required
+@admin_required
+def admin_dashboard(request):
+    context = {
+        'teacher_count': Teacher.objects.count(),
+        'student_count': Student.objects.count(),
+        'department_count': Department.objects.count(),
+        'subject_count': Subject.objects.count(),
+        'upcoming_exams': Exam.objects.filter(date__gte=date.today()).order_by('date')[:5],
+    }
+    return render(request, 'faculty/admin-dashboard.html', context)
+
+
+@teacher_required
 def teacher_dashboard(request):
     teacher = None
     if hasattr(request.user, 'teacher_profile'):
         teacher = request.user.teacher_profile
-    return render(request, 'students/student-dashboard.html', {'teacher': teacher})
-
-
-# ── Holidays ──────────────────────────────────────────────────────────────────
-
-@login_required
-def holiday_list(request):
-    holidays = Holiday.objects.all().order_by('date')
-    return render(request, 'holidays/holidays.html', {'holiday_list': holidays})
-
-
-@login_required
-def add_holiday(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        date = request.POST.get('date')
-        description = request.POST.get('description', '')
-        Holiday.objects.create(name=name, date=date, description=description)
-        messages.success(request, 'Holiday added successfully.')
-        return redirect('holiday_list')
-    return render(request, 'holidays/add-holiday.html')
-
-
-@login_required
-def edit_holiday(request, pk):
-    holiday = get_object_or_404(Holiday, pk=pk)
-    if request.method == 'POST':
-        holiday.name = request.POST.get('name', holiday.name)
-        holiday.date = request.POST.get('date', holiday.date)
-        holiday.description = request.POST.get('description', holiday.description)
-        holiday.save()
-        messages.success(request, 'Holiday updated successfully.')
-        return redirect('holiday_list')
-    return render(request, 'holidays/edit-holiday.html', {'holiday': holiday})
-
-
-@login_required
-def delete_holiday(request, pk):
-    holiday = get_object_or_404(Holiday, pk=pk)
-    holiday.delete()
-    messages.success(request, 'Holiday deleted successfully.')
-    return redirect('holiday_list')
+    return render(request, 'faculty/teacher-dashboard.html', {'teacher': teacher})
 
 
 # ── Teacher CRUD ──────────────────────────────────────────────────────────────
 
-@login_required
+@admin_required
 def teacher_list(request):
     teachers = Teacher.objects.select_related('user', 'department').all()
     return render(request, 'faculty/teachers.html', {'teachers': teachers})
 
 
-@login_required
+@admin_required
 def add_teacher(request):
     departments = Department.objects.all()
     if request.method == 'POST':
@@ -124,13 +98,13 @@ def add_teacher(request):
     return render(request, 'faculty/add-teacher.html', {'departments': departments})
 
 
-@login_required
+@admin_required
 def view_teacher(request, employee_id):
     teacher = get_object_or_404(Teacher, employee_id=employee_id)
     return render(request, 'faculty/teacher-details.html', {'teacher': teacher})
 
 
-@login_required
+@admin_required
 def edit_teacher(request, employee_id):
     teacher = get_object_or_404(Teacher, employee_id=employee_id)
     departments = Department.objects.all()
@@ -161,7 +135,7 @@ def edit_teacher(request, employee_id):
     })
 
 
-@login_required
+@admin_required
 def delete_teacher(request, employee_id):
     teacher = get_object_or_404(Teacher, employee_id=employee_id)
     teacher.user.delete()
@@ -169,15 +143,15 @@ def delete_teacher(request, employee_id):
     return redirect('teacher_list')
 
 
-# ── Department CRUD ────────────────────────────────────────────────────────────
+# ── Department CRUD ───────────────────────────────────────────────────────────
 
-@login_required
+@admin_required
 def department_list(request):
     departments = Department.objects.prefetch_related('teachers').all()
     return render(request, 'faculty/departments.html', {'department_list': departments})
 
 
-@login_required
+@admin_required
 def add_department(request):
     teachers = Teacher.objects.select_related('user').all()
     if request.method == 'POST':
@@ -191,7 +165,7 @@ def add_department(request):
     return render(request, 'faculty/add-department.html', {'teachers': teachers})
 
 
-@login_required
+@admin_required
 def edit_department(request, pk):
     department = get_object_or_404(Department, pk=pk)
     teachers = Teacher.objects.select_related('user').all()
@@ -206,17 +180,16 @@ def edit_department(request, pk):
     return render(request, 'faculty/edit-department.html', {'department': department, 'teachers': teachers})
 
 
-@login_required
+@admin_required
 def delete_department(request, pk):
-    department = get_object_or_404(Department, pk=pk)
-    department.delete()
+    get_object_or_404(Department, pk=pk).delete()
     messages.success(request, 'Department deleted successfully.')
     return redirect('department_list')
 
 
-# ── Subject CRUD ───────────────────────────────────────────────────────────────
+# ── Subject CRUD ──────────────────────────────────────────────────────────────
 
-@login_required
+@admin_required
 def subject_list(request):
     department_id = request.GET.get('department')
     subjects = Subject.objects.select_related('department', 'teacher__user').all()
@@ -230,7 +203,7 @@ def subject_list(request):
     })
 
 
-@login_required
+@admin_required
 def add_subject(request):
     departments = Department.objects.all()
     teachers = Teacher.objects.select_related('user').all()
@@ -247,7 +220,7 @@ def add_subject(request):
     return render(request, 'faculty/add-subject.html', {'departments': departments, 'teachers': teachers})
 
 
-@login_required
+@admin_required
 def edit_subject(request, pk):
     subject = get_object_or_404(Subject, pk=pk)
     departments = Department.objects.all()
@@ -269,38 +242,206 @@ def edit_subject(request, pk):
     })
 
 
-@login_required
+@admin_required
 def delete_subject(request, pk):
-    subject = get_object_or_404(Subject, pk=pk)
-    subject.delete()
+    get_object_or_404(Subject, pk=pk).delete()
     messages.success(request, 'Subject deleted successfully.')
     return redirect('subject_list')
 
 
-# ── Exam CRUD ──────────────────────────────────────────────────────────────────
+# ── Holidays ──────────────────────────────────────────────────────────────────
 
-@login_required
+@admin_required
+def holiday_list(request):
+    holidays = Holiday.objects.all()
+    return render(request, 'faculty/holiday-list.html', {'holidays': holidays})
+
+
+@admin_required
+def add_holiday(request):
+    if request.method == 'POST':
+        Holiday.objects.create(
+            name=request.POST.get('name'),
+            date=request.POST.get('date'),
+            description=request.POST.get('description', ''),
+        )
+        messages.success(request, 'Holiday added successfully.')
+        return redirect('holiday_list')
+    return render(request, 'faculty/add-holiday.html')
+
+
+@admin_required
+def edit_holiday(request, pk):
+    holiday = get_object_or_404(Holiday, pk=pk)
+    if request.method == 'POST':
+        holiday.name = request.POST.get('name')
+        holiday.date = request.POST.get('date')
+        holiday.description = request.POST.get('description', '')
+        holiday.save()
+        messages.success(request, 'Holiday updated.')
+        return redirect('holiday_list')
+    return render(request, 'faculty/edit-holiday.html', {'holiday': holiday})
+
+
+@admin_required
+def delete_holiday(request, pk):
+    get_object_or_404(Holiday, pk=pk).delete()
+    messages.success(request, 'Holiday deleted.')
+    return redirect('holiday_list')
+
+
+# ── Calendar ──────────────────────────────────────────────────────────────────
+
+@admin_required
+def calendar_view(request):
+    today = date.today()
+    year = int(request.GET.get('year', today.year))
+    month = int(request.GET.get('month', today.month))
+
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+
+    cal = calendar.monthcalendar(year, month)
+    holidays = Holiday.objects.filter(date__year=year, date__month=month)
+    events = Event.objects.filter(date__year=year, date__month=month)
+
+    day_items = {}
+    for h in holidays:
+        day_items.setdefault(h.date.day, []).append({'label': h.name, 'type': 'holiday'})
+    for e in events:
+        day_items.setdefault(e.date.day, []).append({'label': e.title, 'type': 'event'})
+
+    context = {
+        'year': year,
+        'month': month,
+        'month_name': calendar.month_name[month],
+        'weeks': cal,
+        'day_items': day_items,
+        'today': today,
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
+        'day_names': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        'holidays': holidays,
+        'events': events,
+    }
+    return render(request, 'faculty/calendar.html', context)
+
+
+# ── Events ────────────────────────────────────────────────────────────────────
+
+@admin_required
+def event_list(request):
+    events = Event.objects.all()
+    return render(request, 'faculty/event-list.html', {'events': events})
+
+
+@admin_required
+def add_event(request):
+    if request.method == 'POST':
+        Event.objects.create(
+            title=request.POST.get('title'),
+            date=request.POST.get('date'),
+            location=request.POST.get('location', ''),
+            description=request.POST.get('description', ''),
+        )
+        messages.success(request, 'Event added successfully.')
+        return redirect('event_list')
+    return render(request, 'faculty/add-event.html')
+
+
+@admin_required
+def edit_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if request.method == 'POST':
+        event.title = request.POST.get('title')
+        event.date = request.POST.get('date')
+        event.location = request.POST.get('location', '')
+        event.description = request.POST.get('description', '')
+        event.save()
+        messages.success(request, 'Event updated.')
+        return redirect('event_list')
+    return render(request, 'faculty/edit-event.html', {'event': event})
+
+
+@admin_required
+def delete_event(request, pk):
+    get_object_or_404(Event, pk=pk).delete()
+    messages.success(request, 'Event deleted.')
+    return redirect('event_list')
+
+
+# ── TimeTable ─────────────────────────────────────────────────────────────────
+
+@admin_required
+def timetable_view(request):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    entries = TimeTable.objects.select_related('subject', 'teacher__user').all()
+    timetable_rows = [(day, list(entries.filter(day=day))) for day in days]
+    return render(request, 'faculty/timetable.html', {'timetable_rows': timetable_rows, 'days': days})
+
+
+@admin_required
+def add_timetable(request):
+    subjects = Subject.objects.select_related('department').all()
+    teachers = Teacher.objects.select_related('user').all()
+    days = TimeTable.DAY_CHOICES
+    if request.method == 'POST':
+        TimeTable.objects.create(
+            subject_id=request.POST.get('subject'),
+            teacher_id=request.POST.get('teacher'),
+            day=request.POST.get('day'),
+            start_time=request.POST.get('start_time'),
+            end_time=request.POST.get('end_time'),
+            room=request.POST.get('room', ''),
+        )
+        messages.success(request, 'Timetable entry added.')
+        return redirect('timetable')
+    return render(request, 'faculty/add-timetable.html', {
+        'subjects': subjects,
+        'teachers': teachers,
+        'days': days,
+    })
+
+
+@admin_required
+def delete_timetable(request, pk):
+    get_object_or_404(TimeTable, pk=pk).delete()
+    messages.success(request, 'Entry deleted.')
+    return redirect('timetable')
+
+
+# ── Exam CRUD ─────────────────────────────────────────────────────────────────
+
+@admin_required
 def exam_list(request):
     exams = Exam.objects.select_related('subject').order_by('date')
     return render(request, 'faculty/exams.html', {'exam_list': exams})
 
 
-@login_required
+@admin_required
 def add_exam(request):
     subjects = Subject.objects.all()
     if request.method == 'POST':
         subject_id = request.POST.get('subject')
-        date = request.POST.get('date')
+        exam_date = request.POST.get('date')
         duration = request.POST.get('duration')
         room = request.POST.get('room', '')
         subject = get_object_or_404(Subject, pk=subject_id)
-        Exam.objects.create(subject=subject, date=date, duration=duration, room=room)
+        Exam.objects.create(subject=subject, date=exam_date, duration=duration, room=room)
         messages.success(request, 'Exam added successfully.')
         return redirect('exam_list')
     return render(request, 'faculty/add-exam.html', {'subjects': subjects})
 
 
-@login_required
+@admin_required
 def edit_exam(request, pk):
     exam = get_object_or_404(Exam, pk=pk)
     subjects = Subject.objects.all()
@@ -315,15 +456,14 @@ def edit_exam(request, pk):
     return render(request, 'faculty/edit-exam.html', {'exam': exam, 'subjects': subjects})
 
 
-@login_required
+@admin_required
 def delete_exam(request, pk):
-    exam = get_object_or_404(Exam, pk=pk)
-    exam.delete()
+    get_object_or_404(Exam, pk=pk).delete()
     messages.success(request, 'Exam deleted successfully.')
     return redirect('exam_list')
 
 
-@login_required
+@admin_required
 def exam_results(request, pk):
     exam = get_object_or_404(Exam, pk=pk)
     results = ExamResult.objects.filter(exam=exam).select_related('student')
@@ -340,18 +480,3 @@ def exam_results(request, pk):
         'results': results,
         'students': students,
     })
-
-
-# ── Dashboard ──────────────────────────────────────────────────────────────────
-
-@login_required
-def admin_dashboard(request):
-    from datetime import date
-    context = {
-        'student_count': Student.objects.count(),
-        'teacher_count': Teacher.objects.count(),
-        'department_count': Department.objects.count(),
-        'subject_count': Subject.objects.count(),
-        'upcoming_exams': Exam.objects.filter(date__gte=date.today()).order_by('date')[:5],
-    }
-    return render(request, 'faculty/admin-dashboard.html', context)

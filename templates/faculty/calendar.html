@@ -1,0 +1,155 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Calendar</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Calendar</li>
+          </ul>
+        </div>
+        <div class="col-auto text-right float-right ml-auto">
+          <a href="{% url 'add_holiday' %}" class="btn btn-sm btn-warning mr-1">
+            <i class="fas fa-plus"></i> Add Holiday
+          </a>
+          <a href="{% url 'add_event' %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i> Add Event
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <span class="badge badge-danger mr-2" style="font-size:0.85rem;">&#9679; Holiday</span>
+        <span class="badge badge-primary" style="font-size:0.85rem;">&#9679; Event</span>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'calendar' %}?year={{ prev_year }}&month={{ prev_month }}"
+                 class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-chevron-left"></i> Prev
+              </a>
+              <h5 class="card-title mb-0">{{ month_name }} {{ year }}</h5>
+              <a href="{% url 'calendar' %}?year={{ next_year }}&month={{ next_month }}"
+                 class="btn btn-outline-secondary btn-sm">
+                Next <i class="fas fa-chevron-right"></i>
+              </a>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-bordered mb-0" style="table-layout:fixed;">
+              <thead class="thead-light text-center">
+                <tr>
+                  {% for name in day_names %}
+                  <th style="width:14.28%;">{{ name }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for week in weeks %}
+                <tr>
+                  {% for day in week %}
+                  <td style="height:110px; vertical-align:top; padding:4px;"
+                      {% if day == today.day and year == today.year and month == today.month %}
+                      class="bg-light"{% endif %}>
+                    {% if day != 0 %}
+                    <div class="d-flex justify-content-between align-items-start">
+                      <span class="font-weight-bold
+                        {% if day == today.day and year == today.year and month == today.month %}
+                          text-primary
+                        {% endif %}">
+                        {{ day }}
+                      </span>
+                    </div>
+                    {% for item in day_items|default_if_none:'' %}{% endfor %}
+                    {% for d, items in day_items.items %}
+                      {% if d == day %}
+                        {% for item in items %}
+                        <div class="mt-1">
+                          {% if item.type == 'holiday' %}
+                          <span class="badge badge-danger d-block text-left text-truncate"
+                                style="font-size:0.72rem;" title="{{ item.label }}">
+                            <i class="fas fa-holly-berry"></i> {{ item.label }}
+                          </span>
+                          {% else %}
+                          <span class="badge badge-primary d-block text-left text-truncate"
+                                style="font-size:0.72rem;" title="{{ item.label }}">
+                            <i class="fas fa-calendar-day"></i> {{ item.label }}
+                          </span>
+                          {% endif %}
+                        </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                  </td>
+                  {% endfor %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chronological list below calendar -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header"><h5 class="card-title mb-0"><i class="fas fa-holly-berry text-danger"></i> Holidays this month</h5></div>
+          <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+              <thead><tr><th>Date</th><th>Holiday</th></tr></thead>
+              <tbody>
+                {% for h in holidays %}
+                <tr>
+                  <td>{{ h.date }}</td>
+                  <td>{{ h.name }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="2" class="text-center text-muted">No holidays this month.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header"><h5 class="card-title mb-0"><i class="fas fa-calendar-day text-primary"></i> Events this month</h5></div>
+          <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+              <thead><tr><th>Date</th><th>Event</th><th>Location</th></tr></thead>
+              <tbody>
+                {% for e in events %}
+                <tr>
+                  <td>{{ e.date }}</td>
+                  <td>{{ e.title }}</td>
+                  <td>{{ e.location|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-center text-muted">No events this month.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
