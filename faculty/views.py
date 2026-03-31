@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+import calendar
+from datetime import date
 
 from .models import Teacher, Department, Subject, Holiday, Event, TimeTable
 from home_auth.decorators import admin_required, teacher_required
@@ -146,6 +148,52 @@ def delete_teacher(request, employee_id):
 def holiday_list(request):
     holidays = Holiday.objects.all()
     return render(request, 'faculty/holiday-list.html', {'holidays': holidays})
+
+
+@admin_required
+def calendar_view(request):
+    today = date.today()
+    year = int(request.GET.get('year', today.year))
+    month = int(request.GET.get('month', today.month))
+
+    # Navigation
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+
+    # Build calendar weeks: list of weeks, each week = list of day numbers (0 = empty)
+    cal = calendar.monthcalendar(year, month)
+
+    # Fetch holidays and events for this month
+    holidays = Holiday.objects.filter(date__year=year, date__month=month)
+    events = Event.objects.filter(date__year=year, date__month=month)
+
+    # Map day -> list of items
+    day_items = {}
+    for h in holidays:
+        day_items.setdefault(h.date.day, []).append({'label': h.name, 'type': 'holiday'})
+    for e in events:
+        day_items.setdefault(e.date.day, []).append({'label': e.title, 'type': 'event'})
+
+    context = {
+        'year': year,
+        'month': month,
+        'month_name': calendar.month_name[month],
+        'weeks': cal,
+        'day_items': day_items,
+        'today': today,
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
+        'day_names': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    }
+    return render(request, 'faculty/calendar.html', context)
 
 
 @admin_required

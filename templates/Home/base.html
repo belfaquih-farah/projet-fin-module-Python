@@ -110,6 +110,9 @@
 
                      {% if request.user.is_admin %}
                      <li>
+                        <a href="{% url 'calendar' %}"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a>
+                     </li>
+                     <li>
                         <a href="{% url 'holiday_list' %}"><i class="fas fa-holly-berry"></i> <span>Holidays</span></a>
                      </li>
                      <li>
