@@ -2,6 +2,15 @@ from django.db import models
 from django.conf import settings
 
 
+class Holiday(models.Model):
+    name = models.CharField(max_length=200)
+    date = models.DateField()
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.date})"
+
+
 class Department(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)

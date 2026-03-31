@@ -7,6 +7,12 @@ urlpatterns = [
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('teacher-dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
 
+    # Holidays
+    path('holidays/', views.holiday_list, name='holiday_list'),
+    path('holidays/add/', views.add_holiday, name='add_holiday'),
+    path('holidays/edit/<int:pk>/', views.edit_holiday, name='edit_holiday'),
+    path('holidays/delete/<int:pk>/', views.delete_holiday, name='delete_holiday'),
+
     # Teacher CRUD
     path('teachers/', views.teacher_list, name='teacher_list'),
     path('teachers/add/', views.add_teacher, name='add_teacher'),

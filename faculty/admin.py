@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Department, Teacher, Subject
+from .models import Holiday, Department, Teacher, Subject
+
+
+@admin.register(Holiday)
+class HolidayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date', 'description')
+    search_fields = ('name',)
+    list_filter = ('date',)
 
 
 @admin.register(Department)
