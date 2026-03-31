@@ -13,6 +13,13 @@ class Holiday(models.Model):
 
 class Department(models.Model):
     name = models.CharField(max_length=100)
+    head_of_department = models.ForeignKey(
+        'Teacher',  # Utilisation d'une chaîne car Teacher est défini plus bas
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='headed_departments'
+    )
     description = models.TextField(blank=True)
 
     def __str__(self):
@@ -61,6 +68,30 @@ class Subject(models.Model):
         blank=True,
         related_name='subjects'
     )
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
+
+
+class Exam(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams')
+    date = models.DateField()
+    duration = models.IntegerField(help_text="Duration in minutes")
+    room = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"Exam: {self.subject.name} on {self.date}"
+
+
+class ExamResult(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='results')
+    student = models.ForeignKey(
+        'student.Student', 
+        on_delete=models.CASCADE, 
+        related_name='exam_results'
+    )
+    score = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.student} - {self.exam.subject.name}: {self.score}"
