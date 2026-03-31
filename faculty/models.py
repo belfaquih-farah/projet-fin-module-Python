@@ -55,3 +55,52 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Holiday(models.Model):
+    name = models.CharField(max_length=100)
+    date = models.DateField()
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return f"{self.name} ({self.date})"
+
+
+class Event(models.Model):
+    title = models.CharField(max_length=150)
+    date = models.DateField()
+    location = models.CharField(max_length=150, blank=True)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return f"{self.title} ({self.date})"
+
+
+class TimeTable(models.Model):
+    DAY_CHOICES = [
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+    ]
+
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='timetable_entries')
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='timetable_entries')
+    day = models.CharField(max_length=10, choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room = models.CharField(max_length=50, blank=True)
+
+    class Meta:
+        ordering = ['day', 'start_time']
+
+    def __str__(self):
+        return f"{self.subject} — {self.day} {self.start_time:%H:%M}-{self.end_time:%H:%M}"
