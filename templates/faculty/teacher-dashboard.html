@@ -1,0 +1,60 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row">
+        <div class="col-sm-12">
+          <h3 class="page-title">
+            Welcome, {{ request.user.first_name }} {{ request.user.last_name }}!
+          </h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item active">Teacher Dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {% if teacher %}
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            {% if teacher.profile_pic %}
+            <img src="{{ teacher.profile_pic.url }}" alt="Profile" class="rounded-circle mb-3" width="100" height="100">
+            {% else %}
+            <img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="Profile" class="rounded-circle mb-3" width="100" height="100">
+            {% endif %}
+            <h5 class="card-title">{{ teacher.user.first_name }} {{ teacher.user.last_name }}</h5>
+            <p class="text-muted">{{ teacher.qualification }}</p>
+            <span class="badge badge-primary">{{ teacher.department }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header"><h5 class="card-title mb-0">Profile Details</h5></div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <tr><th>Employee ID</th><td>{{ teacher.employee_id }}</td></tr>
+              <tr><th>Email</th><td>{{ teacher.user.email }}</td></tr>
+              <tr><th>Phone</th><td>{{ teacher.phone }}</td></tr>
+              <tr><th>Gender</th><td>{{ teacher.gender }}</td></tr>
+              <tr><th>Date of Birth</th><td>{{ teacher.date_of_birth }}</td></tr>
+              <tr><th>Joining Date</th><td>{{ teacher.joining_date }}</td></tr>
+              <tr><th>Department</th><td>{{ teacher.department }}</td></tr>
+              <tr><th>Address</th><td>{{ teacher.address }}</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">No teacher profile found for this account.</div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
