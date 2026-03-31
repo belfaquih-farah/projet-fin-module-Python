@@ -47,47 +47,49 @@ def add_student(request):
 @admin_required
 def view_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
-    return render(request, 'students/student-details.html', {'student': student})
+    return render(request, 'students/student-details.html', {'student': student, 'parent': student.parent})
 
 
 @admin_required
 def edit_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
+    parent = student.parent
+
     if request.method == 'POST':
-        student.first_name = request.POST.get('first_name')
-        student.last_name = request.POST.get('last_name')
-        student.gender = request.POST.get('gender')
-        student.date_of_birth = request.POST.get('date_of_birth')
-        student.student_class = request.POST.get('student_class')
-        student.joining_date = request.POST.get('joining_date')
-        student.mobile_number = request.POST.get('mobile_number')
-        student.admission_number = request.POST.get('admission_number')
-        student.section = request.POST.get('section')
+        student.first_name = request.POST.get('first_name', student.first_name)
+        student.last_name = request.POST.get('last_name', student.last_name)
+        student.gender = request.POST.get('gender', student.gender)
+        student.date_of_birth = request.POST.get('date_of_birth', student.date_of_birth)
+        student.student_class = request.POST.get('student_class', student.student_class)
+        student.joining_date = request.POST.get('joining_date', student.joining_date)
+        student.mobile_number = request.POST.get('mobile_number', student.mobile_number)
+        student.admission_number = request.POST.get('admission_number', student.admission_number)
+        student.section = request.POST.get('section', student.section)
         if request.FILES.get('student_image'):
             student.student_image = request.FILES['student_image']
+
+        parent.father_name = request.POST.get('father_name', parent.father_name)
+        parent.father_occupation = request.POST.get('father_occupation', parent.father_occupation)
+        parent.father_mobile = request.POST.get('father_mobile', parent.father_mobile)
+        parent.father_email = request.POST.get('father_email', parent.father_email)
+        parent.mother_name = request.POST.get('mother_name', parent.mother_name)
+        parent.mother_occupation = request.POST.get('mother_occupation', parent.mother_occupation)
+        parent.mother_mobile = request.POST.get('mother_mobile', parent.mother_mobile)
+        parent.mother_email = request.POST.get('mother_email', parent.mother_email)
+        parent.present_address = request.POST.get('present_address', parent.present_address)
+        parent.permanent_address = request.POST.get('permanent_address', parent.permanent_address)
+
         student.save()
-
-        p = student.parent
-        p.father_name = request.POST.get('father_name')
-        p.father_occupation = request.POST.get('father_occupation', '')
-        p.father_mobile = request.POST.get('father_mobile')
-        p.father_email = request.POST.get('father_email')
-        p.mother_name = request.POST.get('mother_name')
-        p.mother_occupation = request.POST.get('mother_occupation', '')
-        p.mother_mobile = request.POST.get('mother_mobile')
-        p.mother_email = request.POST.get('mother_email')
-        p.present_address = request.POST.get('present_address')
-        p.permanent_address = request.POST.get('permanent_address')
-        p.save()
-
+        parent.save()
         messages.success(request, 'Student updated successfully.')
         return redirect('student_list')
-    return render(request, 'students/edit-student.html', {'student': student})
+
+    return render(request, 'students/edit-student.html', {'student': student, 'parent': parent})
 
 
 @admin_required
 def delete_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
-    student.parent.delete()  # CASCADE deletes student too
+    student.parent.delete()  # cascades to student via OneToOneField
     messages.success(request, 'Student deleted successfully.')
     return redirect('student_list')
