@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 
 from .models import Teacher, Department, Subject, Holiday, Event, TimeTable
 from home_auth.decorators import admin_required, teacher_required
+from student.models import Student
 
 User = get_user_model()
 
@@ -14,12 +15,12 @@ def index(request):
 
 @admin_required
 def dashboard(request):
-    return render(request, 'students/student-dashboard.html')
+    total_students = Student.objects.count()
+    return render(request, 'students/student-dashboard.html', {'total_students': total_students})
 
 
 @admin_required
 def admin_dashboard(request):
-    from student.models import Student
     context = {
         'teacher_count': Teacher.objects.count(),
         'student_count': Student.objects.count(),
@@ -229,7 +230,6 @@ def delete_event(request, pk):
 def timetable_view(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     entries = TimeTable.objects.select_related('subject', 'teacher__user').all()
-    # Pass as list of (day, entries) so templates can iterate without custom filter
     timetable_rows = [(day, list(entries.filter(day=day))) for day in days]
     return render(request, 'faculty/timetable.html', {'timetable_rows': timetable_rows, 'days': days})
 

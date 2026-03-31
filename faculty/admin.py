@@ -2,6 +2,13 @@ from django.contrib import admin
 from .models import Department, Teacher, Subject, Holiday, Event, TimeTable
 
 
+@admin.register(Holiday)
+class HolidayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date', 'description')
+    search_fields = ('name',)
+    list_filter = ('date',)
+
+
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'description')
@@ -20,13 +27,6 @@ class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'department', 'teacher')
     list_filter = ('department',)
     search_fields = ('name',)
-
-
-@admin.register(Holiday)
-class HolidayAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date', 'description')
-    search_fields = ('name',)
-    list_filter = ('date',)
 
 
 @admin.register(Event)

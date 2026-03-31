@@ -19,6 +19,15 @@
                      </div>
                   </div>
                </div>
+               {% if messages %}
+               {% for message in messages %}
+               <div class="alert alert-success alert-dismissible fade show" role="alert">
+                   {{ message }}
+                   <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+               </div>
+               {% endfor %}
+               {% endif %}
+
                <div class="row">
                   <div class="col-sm-12">
                      <div class="card card-table">
@@ -43,7 +52,7 @@
                                        <td>{{ student.student_id}}</td>
                                        <td>
                                           <h2 class="table-avatar">
-                                             {% comment %} <a href="{% url 'view_student' student.student_id %}" class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{ student.student_image ? student.student_image.url : '' }}" alt="User Image"></a> {% endcomment %}
+                                             {% if student.student_image %}<a href="{% url 'view_student' student.student_id %}" class="avatar avatar-sm mr-2"><img class="avatar-img rounded-circle" src="{{ student.student_image.url }}" alt="User Image"></a>{% endif %}
                                              <a href="{% url 'view_student' student.student_id %}">{{ student.first_name }} {{ student.last_name}}</a>
                                           </h2>
                                        </td>

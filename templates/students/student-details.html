@@ -24,12 +24,20 @@
 <div class="about-info">
 <h4>About Me</h4>
 <div class="media mt-3">
-<img src="{{student.student_image ? student.student_image.url : ''}}" class="mr-3" alt="...">
+<img src="{% if student.student_image %}{{ student.student_image.url }}{% endif %}" class="mr-3" alt="Student Image">
 <div class="media-body">
 <ul>
 <li>
 <span class="title-span">Full Name : </span>
-<span class="info-span">{{ student.first_name}}</span>
+<span class="info-span">{{ student.first_name }} {{ student.last_name }}</span>
+</li>
+<li>
+<span class="title-span">Student ID : </span>
+<span class="info-span">{{ student.student_id }}</span>
+</li>
+<li>
+<span class="title-span">Class : </span>
+<span class="info-span">{{ student.student_class }}</span>
 </li>
 <li>
 <span class="title-span">Department : </span>
@@ -41,7 +49,7 @@
 </li>
 <li>
 <span class="title-span">Email : </span>
-<span class="info-span"><a href="{{student.parent.father_email}}" class="__cf_email__" data-cfemail="7216131b010b32151f131b1e5c111d1f">[email&#160;protected]</a></span>
+<span class="info-span">{{ student.parent.father_email }}</span>
 </li>
 <li>
 <span class="title-span">Gender : </span>
@@ -79,16 +87,32 @@
 </div>
 </div>
 </div>
-<div class="row mt-2">
+<div class="row mt-3">
+<div class="col-md-12">
+<h5>Father's Information</h5>
+<p><strong>Name:</strong> {{ parent.father_name }}</p>
+<p><strong>Mobile:</strong> {{ parent.father_mobile }}</p>
+<p><strong>Email:</strong> {{ parent.father_email }}</p>
+</div>
+</div>
+<div class="row mt-3">
+<div class="col-md-12">
+<h5>Mother's Information</h5>
+<p><strong>Name:</strong> {{ parent.mother_name }}</p>
+<p><strong>Mobile:</strong> {{ parent.mother_mobile }}</p>
+<p><strong>Email:</strong> {{ parent.mother_email }}</p>
+</div>
+</div>
+<div class="row mt-3">
 <div class="col-md-12">
 <h5>Permanent Address</h5>
-<p>480, Estern Avenue, Courtage area, New York</p>
+<p>{{ parent.permanent_address }}</p>
 </div>
 </div>
 <div class="row mt-2">
 <div class="col-md-12">
 <h5>Present Address</h5>
-<p>480, Estern Avenue, Courtage area, New York</p>
+<p>{{ parent.present_address }}</p>
 </div>
 </div>
 </div>

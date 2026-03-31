@@ -65,8 +65,8 @@
                                 </div>
                                 <div class="col-12 col-sm-6">
                                     <div class="form-group">
-                                        <label>Religion</label>
-                                        <input type="text" name="religion" class="form-control" value="{{ student.religion }}">
+                                        <label>Section</label>
+                                        <input type="text" name="section" class="form-control" value="{{ student.section }}">
                                     </div>
                                 </div>
                                 <div class="col-12 col-sm-6">
@@ -89,15 +89,9 @@
                                 </div>
                                 <div class="col-12 col-sm-6">
                                     <div class="form-group">
-                                        <label>Section</label>
-                                        <input type="text" name="section" class="form-control" value="{{ student.section }}">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <div class="form-group">
                                         <label>Student Image</label>
                                         <input type="file" name="student_image" class="form-control">
-                                        <small>Current Image: {{ student.student_image.url }}</small>
+                                        {% if student.student_image %}<small>Current Image: {{ student.student_image.url }}</small>{% endif %}
                                     </div>
                                 </div>
                                 <div class="col-12">
