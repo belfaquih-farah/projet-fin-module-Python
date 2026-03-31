@@ -1,0 +1,149 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Edit Teacher</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'teacher_list' %}">Teachers</a></li>
+            <li class="breadcrumb-item active">Edit</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+
+              <h5 class="card-title">Account Information</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>First Name <span class="text-danger">*</span></label>
+                    <input type="text" name="first_name" class="form-control"
+                           value="{{ teacher.user.first_name }}" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Last Name <span class="text-danger">*</span></label>
+                    <input type="text" name="last_name" class="form-control"
+                           value="{{ teacher.user.last_name }}" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" value="{{ teacher.user.email }}" disabled>
+                  </div>
+                </div>
+              </div>
+
+              <hr>
+              <h5 class="card-title">Teacher Information</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Employee ID</label>
+                    <input type="text" class="form-control" value="{{ teacher.employee_id }}" disabled>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Gender <span class="text-danger">*</span></label>
+                    <select name="gender" class="form-control" required>
+                      <option value="Male" {% if teacher.gender == 'Male' %}selected{% endif %}>Male</option>
+                      <option value="Female" {% if teacher.gender == 'Female' %}selected{% endif %}>Female</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Date of Birth <span class="text-danger">*</span></label>
+                    <input type="date" name="date_of_birth" class="form-control"
+                           value="{{ teacher.date_of_birth|date:'Y-m-d' }}" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Phone <span class="text-danger">*</span></label>
+                    <input type="text" name="phone" class="form-control"
+                           value="{{ teacher.phone }}" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Joining Date <span class="text-danger">*</span></label>
+                    <input type="date" name="joining_date" class="form-control"
+                           value="{{ teacher.joining_date|date:'Y-m-d' }}" required>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Department</label>
+                    <select name="department" class="form-control">
+                      <option value="">No Department</option>
+                      {% for dept in departments %}
+                      <option value="{{ dept.pk }}"
+                        {% if teacher.department.pk == dept.pk %}selected{% endif %}>
+                        {{ dept.name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Qualification</label>
+                    <input type="text" name="qualification" class="form-control"
+                           value="{{ teacher.qualification }}">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Profile Picture</label>
+                    {% if teacher.profile_pic %}
+                    <p><img src="{{ teacher.profile_pic.url }}" height="50" class="rounded-circle mb-1"></p>
+                    {% endif %}
+                    <input type="file" name="profile_pic" class="form-control" accept="image/*">
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="form-group">
+                    <label>Address</label>
+                    <textarea name="address" class="form-control" rows="2">{{ teacher.address }}</textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <a href="{% url 'teacher_list' %}" class="btn btn-secondary mr-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
