@@ -1,0 +1,75 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Edit Department</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'department_list' %}">Departments</a></li>
+            <li class="breadcrumb-item active">Edit Department</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Department Name <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" value="{{ department.name }}" required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Head of Department</label>
+                    <select name="head_of_department" class="form-control">
+                      <option value="">— None —</option>
+                      {% for teacher in teachers %}
+                      <option value="{{ teacher.pk }}"
+                        {% if department.head_of_department and department.head_of_department.pk == teacher.pk %}selected{% endif %}>
+                        {{ teacher.user.first_name }} {{ teacher.user.last_name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" rows="3">{{ department.description }}</textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <a href="{% url 'department_list' %}" class="btn btn-secondary mr-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
