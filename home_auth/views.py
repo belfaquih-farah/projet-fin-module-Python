@@ -45,6 +45,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, 'Login successful!')
+            
             # Redirection selon le rôle
             if user.is_admin:
                 return redirect('admin_dashboard')
