@@ -1,21 +1,25 @@
 # PreSkool — School Management System
 
-Django school management app — final university project.
+Django school management app 
 
 ---
 
 ## Installation
 
 ```bash
-git clone https://github.com/ikram7hoss/projet-fin-module-Python.git
+git clone https://github.com/belfaquih-farah/projet-fin-module-Python.git
 cd projet-fin-module-Python
 
 python -m venv monenv
 monenv\Scripts\activate
 
+pip install djang
+python -m pip install Pillow
 pip install -r requirements.txt
 
+py manage.py makemigrations
 python manage.py migrate
+py manage.py createsuperuser
 python manage.py seed_db
 python manage.py runserver
 ```
