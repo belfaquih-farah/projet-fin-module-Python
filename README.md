@@ -29,9 +29,9 @@ Open `http://127.0.0.1:8000`
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | ikram@admin.com | admin123 |
-| Teacher | teacher1@school.ma | EMP001 |
-| Student | saloua@school.ma | STU-001 |
-
+| Teacher | Belfaquih@school.ma | 12345 |
+| Student | saloua@school.ma | 222 |
+ usually the password for both teacher and student is their ID
 ---
 
 ## Demo
