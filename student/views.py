@@ -2,113 +2,88 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from .models import Student, Parent
+from .forms import StudentForm, ParentForm
+
 
 @login_required
 def student_list(request):
     students = Student.objects.select_related('parent').all()
     return render(request, 'students/students.html', {'student_list': students})
 
+
 @login_required
+@transaction.atomic  # Assure que les deux objets (parent et étudiant) sont créés ou aucun
 def add_student(request):
     if request.method == 'POST':
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        student_id = request.POST.get('student_id')
-        gender = request.POST.get('gender')
-        date_of_birth = request.POST.get('date_of_birth')
-        student_class = request.POST.get('student_class')
-        joining_date = request.POST.get('joining_date')
-        mobile_number = request.POST.get('mobile_number')
-        admission_number = request.POST.get('admission_number')
-        section = request.POST.get('section')
-        student_image = request.FILES.get('student_image')
+        student_form = StudentForm(request.POST, request.FILES)
+        parent_form = ParentForm(request.POST)
 
-        father_name = request.POST.get('father_name')
-        father_occupation = request.POST.get('father_occupation')
-        father_mobile = request.POST.get('father_mobile')
-        father_email = request.POST.get('father_email')
-        mother_name = request.POST.get('mother_name')
-        mother_occupation = request.POST.get('mother_occupation')
-        mother_mobile = request.POST.get('mother_mobile')
-        mother_email = request.POST.get('mother_email')
-        present_address = request.POST.get('present_address')
-        permanent_address = request.POST.get('permanent_address')
+        if student_form.is_valid() and parent_form.is_valid():
+            parent = parent_form.save()
+            student = student_form.save(commit=False)
+            student.parent = parent
+            student.save()
+            messages.success(request, 'Student added successfully.')
+            return redirect('student_list')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        student_form = StudentForm()
+        parent_form = ParentForm()
 
-        parent = Parent.objects.create(
-            father_name=father_name,
-            father_occupation=father_occupation,
-            father_mobile=father_mobile,
-            father_email=father_email,
-            mother_name=mother_name,
-            mother_occupation=mother_occupation,
-            mother_mobile=mother_mobile,
-            mother_email=mother_email,
-            present_address=present_address,
-            permanent_address=permanent_address,
-        )
-        Student.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            student_id=student_id,
-            gender=gender,
-            date_of_birth=date_of_birth,
-            student_class=student_class,
-            joining_date=joining_date,
-            mobile_number=mobile_number,
-            admission_number=admission_number,
-            section=section,
-            student_image=student_image,
-            parent=parent,
-        )
-        messages.success(request, 'Student added successfully.')
-        return redirect('student_list')
-    return render(request, 'students/add-student.html')
+    return render(request, 'students/add-student.html', {
+        'student_form': student_form,
+        'parent_form': parent_form
+    })
+
 
 @login_required
+@transaction.atomic
 def edit_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
     parent = student.parent
 
     if request.method == 'POST':
-        student.first_name = request.POST.get('first_name', student.first_name)
-        student.last_name = request.POST.get('last_name', student.last_name)
-        student.gender = request.POST.get('gender', student.gender)
-        student.date_of_birth = request.POST.get('date_of_birth', student.date_of_birth)
-        student.student_class = request.POST.get('student_class', student.student_class)
-        student.joining_date = request.POST.get('joining_date', student.joining_date)
-        student.mobile_number = request.POST.get('mobile_number', student.mobile_number)
-        student.admission_number = request.POST.get('admission_number', student.admission_number)
-        student.section = request.POST.get('section', student.section)
-        if request.FILES.get('student_image'):
-            student.student_image = request.FILES['student_image']
+        student_form = StudentForm(request.POST, request.FILES, instance=student)
+        parent_form = ParentForm(request.POST, instance=parent)
 
-        parent.father_name = request.POST.get('father_name', parent.father_name)
-        parent.father_occupation = request.POST.get('father_occupation', parent.father_occupation)
-        parent.father_mobile = request.POST.get('father_mobile', parent.father_mobile)
-        parent.father_email = request.POST.get('father_email', parent.father_email)
-        parent.mother_name = request.POST.get('mother_name', parent.mother_name)
-        parent.mother_occupation = request.POST.get('mother_occupation', parent.mother_occupation)
-        parent.mother_mobile = request.POST.get('mother_mobile', parent.mother_mobile)
-        parent.mother_email = request.POST.get('mother_email', parent.mother_email)
-        parent.present_address = request.POST.get('present_address', parent.present_address)
-        parent.permanent_address = request.POST.get('permanent_address', parent.permanent_address)
+        if student_form.is_valid() and parent_form.is_valid():
+            student_form.save()
+            parent_form.save()
+            messages.success(request, 'Student updated successfully.')
+            return redirect('student_list')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        student_form = StudentForm(instance=student)
+        parent_form = ParentForm(instance=parent)
 
-        student.save()
-        parent.save()
-        messages.success(request, 'Student updated successfully.')
-        return redirect('student_list')
+    return render(request, 'students/edit-student.html', {
+        'student_form': student_form,
+        'parent_form': parent_form,
+        'student': student  # Garder l'objet student pour l'affichage
+    })
 
-    return render(request, 'students/edit-student.html', {'student': student, 'parent': parent})
 
 @login_required
 def view_student(request, student_id):
-    student = get_object_or_404(Student, student_id=student_id)
-    return render(request, 'students/student-details.html', {'student': student, 'parent': student.parent})
+    # On utilise select_related pour optimiser la requête en récupérant le parent en même temps
+    student = get_object_or_404(Student.objects.select_related('parent'), student_id=student_id)
+    return render(request, 'students/student-details.html', {'student': student})
+
 
 @login_required
 def delete_student(request, student_id):
     student = get_object_or_404(Student, student_id=student_id)
-    student.parent.delete()  # cascades to student via OneToOneField
-    messages.success(request, 'Student deleted successfully.')
-    return redirect('student_list')
+
+    if request.method == 'POST':
+        # La suppression de l'étudiant entraînera la suppression du parent
+        # si on_delete=models.CASCADE est défini sur le champ 'parent' du modèle Student.
+        student.delete()
+        messages.success(request, 'Student deleted successfully.')
+        return redirect('student_list')
+
+    # Pour une requête GET, on affiche une page de confirmation.
+    return render(request, 'students/delete-student-confirm.html', {'student': student})
