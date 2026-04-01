@@ -3,6 +3,9 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('profile/', views.profile_view, name='profile'),
+    path('profile/update/', views.profile_update, name='profile_update'),
+    path('inbox/', views.inbox_view, name='inbox'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('teacher-dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
@@ -43,8 +46,26 @@ urlpatterns = [
 
     # TimeTable
     path('timetable/', views.timetable_view, name='timetable'),
+    path('timetable/json/', views.timetable_json, name='timetable_json'),
     path('timetable/add/', views.add_timetable, name='add_timetable'),
     path('timetable/<int:pk>/delete/', views.delete_timetable, name='delete_timetable'),
+
+    # Notes
+    path('notes/', views.notes_list, name='notes_list'),
+    path('notes/add/', views.add_note, name='add_note'),
+    path('notes/<int:pk>/edit/', views.edit_note, name='edit_note'),
+    path('notes/<int:pk>/delete/', views.delete_note, name='delete_note'),
+    path('notes/my/', views.student_notes, name='student_notes'),
+
+    # Notifications
+    path('notifications/read/', views.mark_notifications_read, name='mark_notifications_read'),
+
+    # Classe CRUD
+    path('classes/', views.classe_list, name='classe_list'),
+    path('classes/add/', views.add_classe, name='add_classe'),
+    path('classes/<int:pk>/', views.classe_detail, name='classe_detail'),
+    path('classes/<int:pk>/edit/', views.edit_classe, name='edit_classe'),
+    path('classes/<int:pk>/delete/', views.delete_classe, name='delete_classe'),
 
     # Exam CRUD
     path('exams/', views.exam_list, name='exam_list'),

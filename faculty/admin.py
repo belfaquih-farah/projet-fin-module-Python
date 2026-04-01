@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Department, Teacher, Subject, Holiday, Event, TimeTable, Exam, ExamResult
+from .models import Classe, Department, Teacher, Subject, Holiday, Event, TimeTable, Exam, ExamResult
+
+
+@admin.register(Classe)
+class ClasseAdmin(admin.ModelAdmin):
+    list_display = ('name', 'level')
+    search_fields = ('name', 'level')
 
 
 @admin.register(Holiday)
@@ -24,8 +30,8 @@ class TeacherAdmin(admin.ModelAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'department', 'teacher')
-    list_filter = ('department',)
+    list_display = ('name', 'department', 'classe', 'teacher')
+    list_filter = ('department', 'classe')
     search_fields = ('name',)
 
 
@@ -46,8 +52,7 @@ class TimeTableAdmin(admin.ModelAdmin):
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = ('subject', 'date', 'duration', 'room')
-    list_filter = ('date', 'subject__department')
-    search_fields = ('subject__name', 'room')
+    list_filter = ('subject', 'date')
 
 
 @admin.register(ExamResult)

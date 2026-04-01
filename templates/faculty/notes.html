@@ -1,0 +1,104 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Notes</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+            <li class="breadcrumb-item active">Notes</li>
+          </ul>
+        </div>
+        {% if request.user.is_teacher %}
+        <div class="col-auto text-right float-right ml-auto">
+          <a href="{% url 'add_note' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Ajouter une note</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+      {{ message }}<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Filtre matière -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <form method="get">
+          <select name="subject" class="form-control" onchange="this.form.submit()">
+            <option value="">Toutes les matières</option>
+            {% for s in subjects %}
+            <option value="{{ s.pk }}" {% if selected_subject == s.pk|stringformat:'s' %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-center mb-0 datatable">
+                <thead>
+                  <tr>
+                    <th>Étudiant</th>
+                    <th>Classe</th>
+                    <th>Matière</th>
+                    <th>Note</th>
+                    <th>/ Max</th>
+                    <th>%</th>
+                    <th>Mention</th>
+                    {% if request.user.is_admin %}<th>Professeur</th>{% endif %}
+                    <th>Commentaire</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for note in notes %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'view_student' note.student.student_id %}">
+                        {{ note.student.first_name }} {{ note.student.last_name }}
+                      </a>
+                    </td>
+                    <td>{{ note.student.classe|default:"—" }}</td>
+                    <td><span class="badge badge-secondary">{{ note.subject.name }}</span></td>
+                    <td><strong>{{ note.score }}</strong></td>
+                    <td>{{ note.max_score }}</td>
+                    <td>{{ note.percentage }}%</td>
+                    <td>
+                      <span class="badge badge-{{ note.mention.1 }}">{{ note.mention.0 }}</span>
+                    </td>
+                    {% if request.user.is_admin %}
+                    <td>{{ note.teacher.user.first_name }} {{ note.teacher.user.last_name }}</td>
+                    {% endif %}
+                    <td>{{ note.comment|default:"—"|truncatechars:40 }}</td>
+                    <td class="text-right">
+                      <a href="{% url 'edit_note' note.pk %}" class="btn btn-sm btn-warning mr-1"><i class="fas fa-edit"></i></a>
+                      <a href="{% url 'delete_note' note.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette note ?')"><i class="fas fa-trash"></i></a>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr><td colspan="10" class="text-center text-muted">Aucune note trouvée.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

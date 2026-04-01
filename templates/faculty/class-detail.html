@@ -1,0 +1,160 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">{{ classe.name }}</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'classe_list' %}">Classes</a></li>
+            <li class="breadcrumb-item active">{{ classe.name }}</li>
+          </ul>
+        </div>
+        {% if request.user.is_admin %}
+        <div class="col-auto text-right float-right ml-auto">
+          <a href="{% url 'edit_classe' classe.pk %}" class="btn btn-warning mr-2">
+            <i class="fas fa-edit mr-1"></i> Modifier
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card bg-primary text-white text-center">
+          <div class="card-body py-3">
+            <h3 class="mb-0">{{ students|length }}</h3>
+            <p class="mb-0">Étudiants</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card bg-success text-white text-center">
+          <div class="card-body py-3">
+            <h3 class="mb-0">{{ subjects|length }}</h3>
+            <p class="mb-0">Matières</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card bg-info text-white text-center">
+          <div class="card-body py-3">
+            <h3 class="mb-0">{{ classe.level|default:"—" }}</h3>
+            <p class="mb-0">Niveau</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+
+      <!-- Matières & Profs -->
+      <div class="col-md-5">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-book-reader mr-2"></i>Matières & Professeurs</h5>
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Matière</th>
+                  <th>Département</th>
+                  <th>Professeur responsable</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for subject in subjects %}
+                <tr>
+                  <td><strong>{{ subject.name }}</strong></td>
+                  <td><span class="badge badge-secondary">{{ subject.department }}</span></td>
+                  <td>
+                    {% if subject.teacher %}
+                      <div class="d-flex align-items-center">
+                        {% if subject.teacher.profile_pic %}
+                        <img src="{{ subject.teacher.profile_pic.url }}" class="rounded-circle mr-2" width="28" height="28" style="object-fit:cover;" alt="">
+                        {% else %}
+                        <span class="rounded-circle mr-2 d-inline-flex align-items-center justify-content-center bg-secondary text-white" style="width:28px;height:28px;font-size:12px;flex-shrink:0;">
+                          <i class="fas fa-user"></i>
+                        </span>
+                        {% endif %}
+                        <span>{{ subject.teacher.user.first_name }} {{ subject.teacher.user.last_name }}</span>
+                      </div>
+                    {% else %}
+                      <span class="text-muted">Non assigné</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-center text-muted">Aucune matière dans cette classe.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étudiants -->
+      <div class="col-md-7">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="fas fa-user-graduate mr-2"></i>Étudiants ({{ students|length }})</h5>
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-hover mb-0 datatable">
+              <thead class="thead-light">
+                <tr>
+                  <th>#</th>
+                  <th>Nom</th>
+                  <th>Genre</th>
+                  <th>Mobile</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for student in students %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>
+                    <h2 class="table-avatar">
+                      {% if student.student_image %}
+                      <a href="{% url 'view_student' student.student_id %}" class="avatar avatar-sm mr-2">
+                        <img class="avatar-img rounded-circle" src="{{ student.student_image.url }}" alt="">
+                      </a>
+                      {% else %}
+                      <span class="avatar avatar-sm mr-2 rounded-circle d-inline-flex align-items-center justify-content-center bg-secondary text-white" style="width:32px;height:32px;">
+                        <i class="fas fa-user" style="font-size:14px;"></i>
+                      </span>
+                      {% endif %}
+                      <a href="{% url 'view_student' student.student_id %}">
+                        {{ student.first_name }} {{ student.last_name }}
+                      </a>
+                    </h2>
+                  </td>
+                  <td>{{ student.gender }}</td>
+                  <td>{{ student.mobile_number }}</td>
+                  <td>
+                    <a href="{% url 'view_student' student.student_id %}" class="btn btn-sm btn-info">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">Aucun étudiant dans cette classe.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -44,7 +44,7 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            messages.success(request, 'Login successful!')
+            messages.success(request, 'Connexion réussie !')
             
             # Redirection selon le rôle
             if user.is_admin:

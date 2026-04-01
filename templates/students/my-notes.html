@@ -1,0 +1,111 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row">
+        <div class="col-sm-12">
+          <h3 class="page-title">Mes Notes</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Mes Notes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {% if not student %}
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle mr-2"></i>
+      Votre compte n'est pas encore lié à un profil étudiant. Contactez l'administrateur.
+    </div>
+    {% else %}
+
+    <!-- Stats -->
+    {% if notes %}
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card bg-primary text-white text-center">
+          <div class="card-body py-3">
+            <h3 class="mb-0">{{ notes|length }}</h3>
+            <p class="mb-0">Matières notées</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card bg-success text-white text-center">
+          <div class="card-body py-3">
+            <h3 class="mb-0">{{ student.classe|default:"—" }}</h3>
+            <p class="mb-0">Ma classe</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes table -->
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-center mb-0 datatable">
+                <thead>
+                  <tr>
+                    <th>Matière</th>
+                    <th>Département</th>
+                    <th>Professeur</th>
+                    <th>Note</th>
+                    <th>/ Max</th>
+                    <th>%</th>
+                    <th>Mention</th>
+                    <th>Commentaire</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for note in notes %}
+                  <tr>
+                    <td><strong>{{ note.subject.name }}</strong></td>
+                    <td>{{ note.subject.department }}</td>
+                    <td>
+                      {% if note.teacher %}
+                        {{ note.teacher.user.first_name }} {{ note.teacher.user.last_name }}
+                      {% else %}—{% endif %}
+                    </td>
+                    <td>
+                      <span class="font-weight-bold text-{{ note.mention.1 }}" style="font-size:16px;">
+                        {{ note.score }}
+                      </span>
+                    </td>
+                    <td>{{ note.max_score }}</td>
+                    <td>
+                      <div class="progress" style="height:6px;min-width:60px;">
+                        <div class="progress-bar bg-{{ note.mention.1 }}" style="width:{{ note.percentage }}%"></div>
+                      </div>
+                      <small>{{ note.percentage }}%</small>
+                    </td>
+                    <td><span class="badge badge-{{ note.mention.1 }}">{{ note.mention.0 }}</span></td>
+                    <td>{{ note.comment|default:"—"|truncatechars:50 }}</td>
+                    <td>{{ note.date_added|date:"d/m/Y" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle mr-2"></i>
+      Aucune note disponible pour le moment.
+    </div>
+    {% endif %}
+
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -54,6 +54,19 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
+                    <label>Classe</label>
+                    <select name="classe" class="form-control">
+                      <option value="">— Aucune —</option>
+                      {% for cls in classes %}
+                      <option value="{{ cls.pk }}" {% if subject.classe and subject.classe.pk == cls.pk %}selected{% endif %}>
+                        {{ cls.name }}{% if cls.level %} ({{ cls.level }}){% endif %}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
                     <label>Teacher</label>
                     <select name="teacher" class="form-control">
                       <option value="">— None —</option>
