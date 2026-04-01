@@ -57,6 +57,10 @@
                         <a href="{% url 'view_teacher' teacher.employee_id %}" class="avatar avatar-sm mr-2">
                           <img class="avatar-img rounded-circle" src="{{ teacher.profile_pic.url }}" alt="">
                         </a>
+                        {% else %}
+                        <span class="avatar avatar-sm mr-2 rounded-circle d-inline-flex align-items-center justify-content-center bg-secondary text-white" style="width:32px;height:32px;font-size:14px;">
+                          <i class="fas fa-user"></i>
+                        </span>
                         {% endif %}
                         <a href="{% url 'view_teacher' teacher.employee_id %}">
                           {{ teacher.user.first_name }} {{ teacher.user.last_name }}

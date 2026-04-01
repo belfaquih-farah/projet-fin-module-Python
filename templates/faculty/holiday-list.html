@@ -1,0 +1,67 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Holidays</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Holidays</li>
+          </ul>
+        </div>
+        {% if request.user.is_admin %}
+        <div class="col-auto text-right float-right ml-auto">
+          <a href="{% url 'add_holiday' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Add Holiday</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-center mb-0 datatable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Holiday Name</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for holiday in holidays %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ holiday.name }}</td>
+                    <td>{{ holiday.date }}</td>
+                    <td>{{ holiday.description|default:"—" }}</td>
+                    <td class="text-right">
+                      {% if request.user.is_admin %}
+                      <a href="{% url 'edit_holiday' holiday.pk %}" class="btn btn-sm btn-warning mr-1"><i class="fas fa-edit"></i></a>
+                      <a href="{% url 'delete_holiday' holiday.pk %}" class="btn btn-sm btn-danger"
+                         onclick="return confirm('Delete this holiday?')"><i class="fas fa-trash"></i></a>
+                      {% else %}—{% endif %}
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr><td colspan="5" class="text-center">No holidays found.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

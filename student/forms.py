@@ -15,5 +15,4 @@ class ParentForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        # On exclut le champ 'parent' car il sera géré manuellement dans la vue
         exclude = ('parent',)

@@ -24,7 +24,13 @@
 <div class="about-info">
 <h4>About Me</h4>
 <div class="media mt-3">
-<img src="{% if student.student_image %}{{ student.student_image.url }}{% endif %}" class="mr-3" alt="Student Image">
+{% if student.student_image %}
+<img src="{{ student.student_image.url }}" class="mr-3 rounded-circle" width="80" height="80" style="object-fit:cover;" alt="Student Image">
+{% else %}
+<span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-secondary text-white mr-3" style="width:80px;height:80px;font-size:34px;flex-shrink:0;">
+  <i class="fas fa-user"></i>
+</span>
+{% endif %}
 <div class="media-body">
 <ul>
 <li>
@@ -37,7 +43,7 @@
 </li>
 <li>
 <span class="title-span">Class : </span>
-<span class="info-span">{{ student.student_class }}</span>
+<span class="info-span">{{ student.classe|default:"—" }}</span>
 </li>
 <li>
 <span class="title-span">Department : </span>

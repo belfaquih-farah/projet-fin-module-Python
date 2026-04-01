@@ -1,0 +1,91 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Add Timetable Entry</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'timetable' %}">Time Table</a></li>
+            <li class="breadcrumb-item active">Add Entry</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-12 col-sm-6">
+                  <div class="form-group">
+                    <label>Subject <span class="text-danger">*</span></label>
+                    <select name="subject" class="form-control" required>
+                      <option value="">— Select Subject —</option>
+                      {% for subject in subjects %}
+                      <option value="{{ subject.pk }}">{{ subject.name }} ({{ subject.department }})</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <div class="form-group">
+                    <label>Teacher <span class="text-danger">*</span></label>
+                    <select name="teacher" class="form-control" required>
+                      <option value="">— Select Teacher —</option>
+                      {% for teacher in teachers %}
+                      <option value="{{ teacher.pk }}">{{ teacher.user.first_name }} {{ teacher.user.last_name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="form-group">
+                    <label>Day <span class="text-danger">*</span></label>
+                    <select name="day" class="form-control" required>
+                      <option value="">— Select Day —</option>
+                      {% for value, label in days %}
+                      <option value="{{ value }}">{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="form-group">
+                    <label>Start Time <span class="text-danger">*</span></label>
+                    <input type="time" name="start_time" class="form-control" required>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="form-group">
+                    <label>End Time <span class="text-danger">*</span></label>
+                    <input type="time" name="end_time" class="form-control" required>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <div class="form-group">
+                    <label>Room</label>
+                    <input type="text" name="room" class="form-control" placeholder="e.g. Room 101">
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <a href="{% url 'timetable' %}" class="btn btn-secondary mr-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Add Entry</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

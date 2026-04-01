@@ -1,0 +1,74 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% block body %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">My Profile</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">My Profile</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body text-center">
+            <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-secondary text-white mb-3" style="width:100px;height:100px;font-size:42px;">
+              <i class="fas fa-user"></i>
+            </span>
+            <h5>{{ request.user.get_full_name|default:request.user.username }}</h5>
+            <p class="text-muted">
+              {% if request.user.is_admin %}Administrator
+              {% elif request.user.is_teacher %}Teacher
+              {% elif request.user.is_student %}Student
+              {% endif %}
+            </p>
+            <p class="text-muted">{{ request.user.email }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header"><h5 class="mb-0">Account Information</h5></div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>First Name</label>
+                  <input type="text" class="form-control" value="{{ request.user.first_name }}" readonly>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Last Name</label>
+                  <input type="text" class="form-control" value="{{ request.user.last_name }}" readonly>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="text" class="form-control" value="{{ request.user.email }}" readonly>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Username</label>
+                  <input type="text" class="form-control" value="{{ request.user.username }}" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

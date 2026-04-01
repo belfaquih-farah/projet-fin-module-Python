@@ -20,7 +20,8 @@ class CustomUser(AbstractUser):
        # Fields for user roles
     is_student = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
-    is_teacher = models.BooleanField(default=False) 
+    is_teacher = models.BooleanField(default=False)
+    profile_pic = models.ImageField(upload_to='admin_pics/', blank=True, null=True) 
 
     # Set related_name to None to prevent reverse relationship creation
     groups = models.ManyToManyField(
@@ -40,7 +41,7 @@ class CustomUser(AbstractUser):
 class PasswordResetRequest(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     email = models.EmailField()
-    token = models.CharField(max_length=32, default=lambda: get_random_string(32), editable=False, unique=True)
+    token = models.CharField(max_length=32, default=get_random_string, editable=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     # Define token validity period (e.g., 1 hour)
